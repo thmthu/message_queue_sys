@@ -1,7 +1,7 @@
 "use strict";
 
 const { connectToRabbitMQ, consumerQueue } = require("../dbs/init.rabbit");
-
+const notiModel = require("../models/notification.model");
 const messageService = {
   consumerToQueue: async (queueName) => {
     try {
@@ -15,12 +15,21 @@ const messageService = {
     try {
       const { channel, connection } = await connectToRabbitMQ();
       const notifQueue = "notiQueue";
+      let data;
       channel.consume(notifQueue, (msg) => {
         const noti = msg.content.toString();
+        data = noti;
         console.log("SEND notificationQueue successfully processed:", noti);
         channel.ack(msg);
-        
       });
+      console.log(data);
+      data &&
+        (await notiModel.create({
+          noti_senderId: data.senderId,
+          noti_recieverId: data.recieverId,
+          noti_option: data.option,
+          noti_type: data.type,
+        }));
     } catch (error) {
       console.error(error);
     }
