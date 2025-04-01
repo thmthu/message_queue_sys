@@ -1,8 +1,13 @@
 "use strict";
+require("./src/dbs/init.mongo");
 
 const { messageService } = require("./src/services/consumerService");
-const queuName = "test-topic";
+
 messageService
-  .consumerToQueue(queuName)
+  .consumerToQueueNormal()
+  .then(() => console.log("index recieve mess"))
+  .catch((err) => console.log("index have err ", err));
+messageService
+  .consumeToQueueFailed()
   .then(() => console.log("index recieve mess"))
   .catch((err) => console.log("index have err ", err));
